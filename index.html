@@ -686,14 +686,35 @@
         }
 
         // Initialize
+        let initialized = false;
         function init() {
+            if (initialized) return;
+            initialized = true;
+            
             canvas.width = 800;
             canvas.height = 480;
+            
+            // Ensure clean state
+            gameOver = false;
+            win = false;
+            score = 0;
+            coins = 0;
+            timeLeft = 300;
+            particles = [];
+            
             resetGame();
             requestAnimationFrame(gameLoop);
+            
+            console.log('Mario Game Initialized Successfully!');
+            console.log('Controls: Arrow Keys/WASD to move, Space to restart');
         }
 
-        init();
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
