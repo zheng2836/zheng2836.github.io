@@ -1,424 +1,700 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>炫酷特效互动页面</title>
+    <title>Super Mario Bros</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
+            background-color: #5c94fc;
             overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            cursor: none;
+            font-family: 'Courier New', Courier, monospace;
+            user-select: none;
         }
-
-        #canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        .cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-
-        .cursor-dot {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            transform: translate(-50%, -50%);
-        }
-
-        .content {
+        #game-container {
             position: relative;
-            z-index: 10;
+            width: 100vw;
+            height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            color: white;
-            text-align: center;
-            pointer-events: none;
         }
-
-        .title {
-            font-size: 4rem;
-            font-weight: bold;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        canvas {
+            image-rendering: pixelated;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
-
-        .subtitle {
-            font-size: 1.5rem;
-            opacity: 0.9;
-            max-width: 600px;
-            line-height: 1.6;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.2);
-            }
-            to {
-                text-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.4), 0 0 50px rgba(255, 255, 255, 0.3);
-            }
-        }
-
-        .floating-shapes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .shape {
+        #ui {
             position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            animation: float 15s infinite linear;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) rotate(720deg);
-                opacity: 0;
-            }
-        }
-
-        .click-effect {
-            position: fixed;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-            pointer-events: none;
-            z-index: 9998;
-            animation: clickExpand 0.6s ease-out forwards;
-        }
-
-        @keyframes clickExpand {
-            0% {
-                transform: translate(-50%, -50%) scale(0);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(3);
-                opacity: 0;
-            }
-        }
-
-        .info-panel {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
+            top: 20px;
+            left: 20px;
             color: white;
-            z-index: 100;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            max-width: 300px;
-            animation: slideIn 1s ease-out;
+            font-size: 20px;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 10;
         }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .info-panel h3 {
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .info-panel p {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-
-        .counter {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 25px;
-            border-radius: 25px;
+        #controls-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             color: white;
-            z-index: 100;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 1.1rem;
-            animation: fadeIn 1s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            font-size: 16px;
+            text-shadow: 1px 1px 0 #000;
+            text-align: center;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    
-    <div class="cursor"></div>
-    <div class="cursor-dot"></div>
-    
-    <div class="floating-shapes" id="shapes"></div>
-    
-    <div class="content">
-        <h1 class="title">✨ 魔法互动空间 ✨</h1>
-        <p class="subtitle">移动鼠标探索粒子世界 • 点击创造涟漪效果 • 享受视觉盛宴</p>
-    </div>
-    
-    <div class="counter">
-        粒子数量: <span id="particleCount">0</span>
-    </div>
-    
-    <div class="info-panel">
-        <h3>🎮 互动指南</h3>
-        <p>• 移动鼠标：粒子会跟随你的轨迹</p>
-        <p>• 点击鼠标：产生炫丽涟漪效果</p>
-        <p>• 静静观察：享受自动动画之美</p>
+    <div id="game-container">
+        <div id="ui">
+            MARIO<br>
+            <span id="score">000000</span><br><br>
+            COINS<br>
+            <span id="coins">00</span><br><br>
+            WORLD<br>
+            1-1<br><br>
+            TIME<br>
+            <span id="time">300</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="controls-hint">
+            ARROWS / WASD to Move & Jump<br>
+            SPACE to Restart
+        </div>
     </div>
 
     <script>
-        // Canvas 设置
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // 自定义光标
-        const cursor = document.querySelector('.cursor');
-        const cursorDot = document.querySelector('.cursor-dot');
         
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-            cursorDot.style.left = e.clientX + 'px';
-            cursorDot.style.top = e.clientY + 'px';
-        });
+        // Game constants
+        const TILE_SIZE = 32;
+        const GRAVITY = 0.5;
+        const JUMP_FORCE = -10;
+        const MOVE_SPEED = 4;
+        const MAX_FALL_SPEED = 12;
+        
+        // Game state
+        let score = 0;
+        let coins = 0;
+        let timeLeft = 300;
+        let lastTime = 0;
+        let timerInterval = null;
+        let gameOver = false;
+        let win = false;
 
-        document.addEventListener('mousedown', () => {
-            cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
-            createClickEffect(e.clientX, e.clientY);
-        });
+        // Input handling
+        const keys = {
+            left: false,
+            right: false,
+            up: false,
+            down: false
+        };
 
-        document.addEventListener('mouseup', () => {
-            cursor.style.transform = 'translate(-50%, -50%) scale(1)';
-        });
-
-        // 点击效果
-        function createClickEffect(x, y) {
-            const effect = document.createElement('div');
-            effect.className = 'click-effect';
-            effect.style.left = x + 'px';
-            effect.style.top = y + 'px';
-            effect.style.width = '50px';
-            effect.style.height = '50px';
-            document.body.appendChild(effect);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') {
+                if (!keys.up && !player.jumping && !gameOver) {
+                    player.velY = JUMP_FORCE;
+                    player.jumping = true;
+                }
+                keys.up = true;
+            }
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = true;
             
-            setTimeout(() => {
-                effect.remove();
-            }, 600);
-        }
-
-        // 粒子系统
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-                this.color = `hsla(${Math.random() * 360}, 100%, 70%, 0.8)`;
-                this.life = 100;
-                this.maxLife = 100;
+            // Restart on space if game over
+            if (e.code === 'Space' && (gameOver || win)) {
+                resetGame();
             }
+        });
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= 0.5;
-                
-                if (this.size > 0.2) this.size -= 0.02;
-                
-                // 重力效果
-                this.speedY += 0.02;
-                
-                // 边界检测
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') keys.up = false;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = false;
+        });
 
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // 添加光晕效果
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-            }
-        }
+        // Level data (simple representation)
+        // 0: air, 1: ground, 2: brick, 3: question block, 4: pipe left, 5: pipe right, 6: goomba, 7: coin, 8: flag pole, 9: castle
+        const levelMap = [
+            "                                                                                                    ",
+            "                                                                                                    ",
+            "                                                                                                    ",
+            "                                                                                                    ",
+            "                                                                                                    ",
+            "                                                                                                    ",
+            "      3   222   3                                                                                   ",
+            "                                                                                                    ",
+            "                  3   222   3                                                                       ",
+            "                                                                                                    ",
+            "                              45                                                                    ",
+            "                6             45        6                                                           ",
+            "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+            "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+        ];
 
+        // Parse level
+        let tiles = [];
+        let enemies = [];
+        let items = [];
         let particles = [];
-        const maxParticles = 300;
+        let flagX = 0;
 
-        function handleParticles() {
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                
-                if (particles[i].life <= 0 || particles[i].size <= 0.2) {
-                    particles.splice(i, 1);
-                    i--;
+        function parseLevel() {
+            tiles = [];
+            enemies = [];
+            items = [];
+            particles = [];
+            
+            for (let row = 0; row < levelMap.length; row++) {
+                tiles[row] = [];
+                for (let col = 0; col < levelMap[row].length; col++) {
+                    const char = levelMap[row][col];
+                    let tileType = 0;
+                    
+                    if (char === '1') tileType = 1; // ground
+                    else if (char === '2') tileType = 2; // brick
+                    else if (char === '3') tileType = 3; // question block
+                    else if (char === '4') tileType = 4; // pipe left
+                    else if (char === '5') tileType = 5; // pipe right
+                    else if (char === '6') {
+                        enemies.push({
+                            x: col * TILE_SIZE,
+                            y: row * TILE_SIZE,
+                            width: TILE_SIZE,
+                            height: TILE_SIZE,
+                            velX: -1,
+                            dead: false,
+                            type: 'goomba'
+                        });
+                        tileType = 0;
+                    }
+                    else if (char === '7') {
+                        items.push({
+                            x: col * TILE_SIZE + TILE_SIZE/2,
+                            y: row * TILE_SIZE + TILE_SIZE/2,
+                            width: 20,
+                            height: 20,
+                            collected: false,
+                            type: 'coin'
+                        });
+                        tileType = 0;
+                    }
+                    else if (char === '8') {
+                        flagX = col * TILE_SIZE;
+                        tileType = 8;
+                    }
+                    else if (char === '9') tileType = 9;
+                    else tileType = 0;
+                    
+                    tiles[row][col] = tileType;
                 }
             }
         }
 
-        // 鼠标移动产生粒子
-        let lastMouseX = 0;
-        let lastMouseY = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            const distance = Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY);
+        // Player object
+        const player = {
+            x: 100,
+            y: 100,
+            width: 28,
+            height: 32,
+            velX: 0,
+            velY: 0,
+            jumping: false,
+            facingRight: true,
+            frame: 0,
+            frameTimer: 0,
+            dead: false,
+            invincible: false,
+            invincibleTimer: 0
+        };
+
+        // Camera
+        let cameraX = 0;
+
+        function resetGame() {
+            score = 0;
+            coins = 0;
+            timeLeft = 300;
+            gameOver = false;
+            win = false;
+            player.x = 100;
+            player.y = 100;
+            player.velX = 0;
+            player.velY = 0;
+            player.dead = false;
+            player.invincible = false;
+            cameraX = 0;
+            parseLevel();
+            updateUI();
             
-            if (distance > 5) {
-                for (let i = 0; i < 2; i++) {
-                    if (particles.length < maxParticles) {
-                        particles.push(new Particle(e.clientX, e.clientY));
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!gameOver && !win && timeLeft > 0) {
+                    timeLeft--;
+                    updateUI();
+                    if (timeLeft <= 0) {
+                        die();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score.toString().padStart(6, '0');
+            document.getElementById('coins').textContent = coins.toString().padStart(2, '0');
+            document.getElementById('time').textContent = timeLeft;
+        }
+
+        function die() {
+            if (player.dead) return;
+            player.dead = true;
+            player.velY = -8;
+            gameOver = true;
+            setTimeout(() => {
+                alert("GAME OVER\nPress SPACE to restart");
+            }, 100);
+        }
+
+        function winGame() {
+            if (win) return;
+            win = true;
+            gameOver = true;
+            score += timeLeft * 50;
+            updateUI();
+            setTimeout(() => {
+                alert("COURSE CLEAR!\nScore: " + score + "\nPress SPACE to restart");
+            }, 100);
+        }
+
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function getTileAt(x, y) {
+            const col = Math.floor(x / TILE_SIZE);
+            const row = Math.floor(y / TILE_SIZE);
+            if (row >= 0 && row < tiles.length && col >= 0 && col < tiles[0].length) {
+                return { type: tiles[row][col], row, col };
+            }
+            return { type: 0, row, col };
+        }
+
+        function hitBlock(row, col) {
+            const tile = tiles[row][col];
+            if (tile === 2) { // Brick
+                tiles[row][col] = 0; // Remove brick
+                score += 50;
+                // Create particles
+                for (let i = 0; i < 4; i++) {
+                    particles.push({
+                        x: col * TILE_SIZE,
+                        y: row * TILE_SIZE,
+                        velX: (Math.random() - 0.5) * 4,
+                        velY: (Math.random() - 0.5) * 4 - 2,
+                        life: 30,
+                        color: '#b84e00'
+                    });
+                }
+            } else if (tile === 3) { // Question block
+                tiles[row][col] = 10; // Empty block
+                score += 100;
+                coins++;
+                // Create coin particle
+                particles.push({
+                    x: col * TILE_SIZE + TILE_SIZE/2,
+                    y: row * TILE_SIZE,
+                    velX: 0,
+                    velY: -6,
+                    life: 20,
+                    color: '#ffd700',
+                    isCoin: true
+                });
+            }
+            updateUI();
+        }
+
+        function update() {
+            if (gameOver && !player.dead) return;
+            
+            // Player movement
+            if (!player.dead) {
+                if (keys.left) {
+                    player.velX = -MOVE_SPEED;
+                    player.facingRight = false;
+                } else if (keys.right) {
+                    player.velX = MOVE_SPEED;
+                    player.facingRight = true;
+                } else {
+                    player.velX = 0;
+                }
+                
+                player.velY += GRAVITY;
+                if (player.velY > MAX_FALL_SPEED) player.velY = MAX_FALL_SPEED;
+            } else {
+                player.velY += GRAVITY;
+            }
+            
+            // Apply velocity
+            player.x += player.velX;
+            player.y += player.velY;
+            
+            // Collision detection with tiles
+            const playerRect = {
+                x: player.x,
+                y: player.y,
+                width: player.width,
+                height: player.height
+            };
+            
+            // Check horizontal collisions
+            if (player.velX !== 0) {
+                const checkX = player.velX > 0 ? player.x + player.width : player.x;
+                const topLeft = getTileAt(checkX, player.y);
+                const bottomLeft = getTileAt(checkX, player.y + player.height - 1);
+                
+                if (topLeft.type > 0 && topLeft.type < 8 || bottomLeft.type > 0 && bottomLeft.type < 8) {
+                    if (player.velX > 0) {
+                        player.x = topLeft.col * TILE_SIZE - player.width;
+                    } else {
+                        player.x = (topLeft.col + 1) * TILE_SIZE;
+                    }
+                    player.velX = 0;
+                }
+            }
+            
+            // Check vertical collisions
+            if (player.velY !== 0) {
+                if (player.velY > 0) { // Falling
+                    const bottomLeft = getTileAt(player.x, player.y + player.height);
+                    const bottomRight = getTileAt(player.x + player.width - 1, player.y + player.height);
+                    
+                    if ((bottomLeft.type > 0 && bottomLeft.type < 8) || (bottomRight.type > 0 && bottomRight.type < 8)) {
+                        player.y = bottomLeft.row * TILE_SIZE - player.height;
+                        player.velY = 0;
+                        player.jumping = false;
+                    }
+                } else { // Jumping
+                    const topLeft = getTileAt(player.x, player.y);
+                    const topRight = getTileAt(player.x + player.width - 1, player.y);
+                    
+                    if ((topLeft.type > 0 && topLeft.type < 8) || (topRight.type > 0 && topRight.type < 8)) {
+                        player.y = (topLeft.row + 1) * TILE_SIZE;
+                        player.velY = 0;
+                        // Hit the block
+                        if (topLeft.type > 0) hitBlock(topLeft.row, topLeft.col);
+                        else if (topRight.type > 0) hitBlock(topRight.row, topRight.col);
                     }
                 }
             }
             
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-        });
-
-        // 点击产生更多粒子
-        document.addEventListener('click', (e) => {
-            for (let i = 0; i < 20; i++) {
-                if (particles.length < maxParticles) {
-                    const particle = new Particle(e.clientX, e.clientY);
-                    particle.speedX = Math.random() * 8 - 4;
-                    particle.speedY = Math.random() * 8 - 4;
-                    particle.size = Math.random() * 5 + 2;
-                    particles.push(particle);
-                }
+            // Check boundaries
+            if (player.x < 0) player.x = 0;
+            if (player.y > canvas.height) {
+                die();
             }
-        });
-
-        // 创建浮动形状
-        function createFloatingShapes() {
-            const shapesContainer = document.getElementById('shapes');
-            const shapeCount = 15;
             
-            for (let i = 0; i < shapeCount; i++) {
-                const shape = document.createElement('div');
-                shape.className = 'shape';
+            // Update enemies
+            enemies.forEach(enemy => {
+                if (enemy.dead) {
+                    enemy.y += 2; // Fall down
+                    return;
+                }
                 
-                const size = Math.random() * 100 + 50;
-                shape.style.width = size + 'px';
-                shape.style.height = size + 'px';
-                shape.style.left = Math.random() * 100 + '%';
-                shape.style.animationDelay = Math.random() * 15 + 's';
-                shape.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                enemy.velY = (enemy.velY || 0) + GRAVITY;
+                enemy.x += enemy.velX;
+                enemy.y += enemy.velY;
                 
-                shapesContainer.appendChild(shape);
+                // Enemy collision with tiles
+                const enemyBottom = getTileAt(enemy.x + enemy.width/2, enemy.y + enemy.height);
+                if (enemyBottom.type > 0 && enemyBottom.type < 8) {
+                    enemy.y = enemyBottom.row * TILE_SIZE - enemy.height;
+                    enemy.velY = 0;
+                }
+                
+                const enemyLeft = getTileAt(enemy.x, enemy.y + enemy.height/2);
+                const enemyRight = getTileAt(enemy.x + enemy.width, enemy.y + enemy.height/2);
+                if ((enemyLeft.type > 0 && enemyLeft.type < 8) || (enemyRight.type > 0 && enemyRight.type < 8)) {
+                    enemy.velX *= -1;
+                }
+                
+                // Player-enemy collision
+                if (!player.dead && !enemy.dead) {
+                    const playerRect = { x: player.x, y: player.y, width: player.width, height: player.height };
+                    const enemyRect = { x: enemy.x, y: enemy.y, width: enemy.width, height: enemy.height };
+                    
+                    if (checkCollision(playerRect, enemyRect)) {
+                        // Check if player is stomping
+                        if (player.velY > 0 && player.y + player.height < enemy.y + enemy.height/2) {
+                            enemy.dead = true;
+                            player.velY = -6; // Bounce
+                            score += 100;
+                            updateUI();
+                            // Create particles
+                            for (let i = 0; i < 4; i++) {
+                                particles.push({
+                                    x: enemy.x + enemy.width/2,
+                                    y: enemy.y + enemy.height/2,
+                                    velX: (Math.random() - 0.5) * 4,
+                                    velY: (Math.random() - 0.5) * 4 - 2,
+                                    life: 20,
+                                    color: '#8b4513'
+                                });
+                            }
+                        } else {
+                            die();
+                        }
+                    }
+                }
+            });
+            
+            // Update items
+            items.forEach(item => {
+                if (item.collected) return;
+                
+                const playerRect = { x: player.x, y: player.y, width: player.width, height: player.height };
+                const itemRect = { x: item.x - item.width/2, y: item.y - item.height/2, width: item.width, height: item.height };
+                
+                if (checkCollision(playerRect, itemRect)) {
+                    item.collected = true;
+                    coins++;
+                    score += 200;
+                    updateUI();
+                }
+            });
+            
+            // Update particles
+            particles.forEach((particle, index) => {
+                particle.x += particle.velX;
+                particle.y += particle.velY;
+                particle.velY += 0.2;
+                particle.life--;
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            
+            // Check win condition
+            if (player.x > flagX && !win) {
+                winGame();
+            }
+            
+            // Update camera
+            const targetCameraX = player.x - canvas.width / 3;
+            if (targetCameraX > cameraX) {
+                cameraX = targetCameraX;
+            }
+            if (cameraX < 0) cameraX = 0;
+            if (cameraX > (tiles[0].length * TILE_SIZE) - canvas.width) {
+                cameraX = (tiles[0].length * TILE_SIZE) - canvas.width;
+            }
+            
+            // Animation frame
+            if (Math.abs(player.velX) > 0.5 && !player.jumping && !player.dead) {
+                player.frameTimer++;
+                if (player.frameTimer > 8) {
+                    player.frame = (player.frame + 1) % 3;
+                    player.frameTimer = 0;
+                }
+            } else {
+                player.frame = 0;
             }
         }
 
-        // 更新粒子计数器
-        function updateCounter() {
-            document.getElementById('particleCount').textContent = particles.length;
-        }
-
-        // 动画循环
-        function animate() {
-            ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#5c94fc';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            handleParticles();
-            updateCounter();
+            ctx.save();
+            ctx.translate(-cameraX, 0);
             
-            requestAnimationFrame(animate);
-        }
-
-        // 窗口大小调整
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        // 初始化
-        createFloatingShapes();
-        animate();
-
-        // 自动产生一些初始粒子
-        setInterval(() => {
-            if (particles.length < 50) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * canvas.height;
-                for (let i = 0; i < 3; i++) {
-                    particles.push(new Particle(x, y));
+            // Draw tiles
+            for (let row = 0; row < tiles.length; row++) {
+                for (let col = 0; col < tiles[row].length; col++) {
+                    const tile = tiles[row][col];
+                    const x = col * TILE_SIZE;
+                    const y = row * TILE_SIZE;
+                    
+                    if (tile === 1) { // Ground
+                        ctx.fillStyle = '#b84e00';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = '#ff985f';
+                        ctx.fillRect(x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                    } else if (tile === 2) { // Brick
+                        ctx.fillStyle = '#b84e00';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(x, y + 8, TILE_SIZE, 2);
+                        ctx.fillRect(x, y + 24, TILE_SIZE, 2);
+                        ctx.fillRect(x + 16, y, 2, 8);
+                        ctx.fillRect(x + 8, y + 8, 2, 16);
+                        ctx.fillRect(x + 24, y + 8, 2, 16);
+                    } else if (tile === 3) { // Question block
+                        ctx.fillStyle = '#ffd700';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 20px monospace';
+                        ctx.fillText('?', x + 10, y + 24);
+                    } else if (tile === 4) { // Pipe left
+                        ctx.fillStyle = '#00aa00';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = '#00dd00';
+                        ctx.fillRect(x + 4, y, 8, TILE_SIZE);
+                    } else if (tile === 5) { // Pipe right
+                        ctx.fillStyle = '#00aa00';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = '#00dd00';
+                        ctx.fillRect(x + 4, y, 8, TILE_SIZE);
+                    } else if (tile === 8) { // Flag pole
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(x + 14, y, 4, TILE_SIZE);
+                    } else if (tile === 9) { // Castle
+                        ctx.fillStyle = '#b84e00';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                    } else if (tile === 10) { // Empty block
+                        ctx.fillStyle = '#8b4513';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                    }
                 }
             }
-        }, 500);
+            
+            // Draw items
+            items.forEach(item => {
+                if (item.collected) return;
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(item.x, item.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = '12px monospace';
+                ctx.fillText('$', item.x - 4, item.y + 4);
+            });
+            
+            // Draw enemies
+            enemies.forEach(enemy => {
+                if (enemy.dead) {
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(enemy.x, enemy.y + enemy.height/2, enemy.width, enemy.height/2);
+                } else {
+                    ctx.fillStyle = '#8b4513';
+                    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                    // Eyes
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(enemy.x + 4, enemy.y + 8, 6, 6);
+                    ctx.fillRect(enemy.x + 20, enemy.y + 8, 6, 6);
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(enemy.x + 6, enemy.y + 10, 2, 2);
+                    ctx.fillRect(enemy.x + 22, enemy.y + 10, 2, 2);
+                }
+            });
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.fillStyle = particle.color;
+                if (particle.isCoin) {
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#000';
+                    ctx.font = '10px monospace';
+                    ctx.fillText('$', particle.x - 3, particle.y + 3);
+                } else {
+                    ctx.fillRect(particle.x, particle.y, 6, 6);
+                }
+            });
+            
+            // Draw player (Mario)
+            if (!player.dead || Math.floor(Date.now() / 100) % 2 === 0) {
+                ctx.fillStyle = '#ff0000'; // Red hat/shirt
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                
+                // Face
+                ctx.fillStyle = '#ffcc99';
+                if (player.facingRight) {
+                    ctx.fillRect(player.x + 18, player.y + 4, 8, 10);
+                } else {
+                    ctx.fillRect(player.x + 2, player.y + 4, 8, 10);
+                }
+                
+                // Overalls
+                ctx.fillStyle = '#0000ff';
+                ctx.fillRect(player.x + 4, player.y + 20, player.width - 8, 12);
+                
+                // Animation frames for walking
+                if (player.frame === 1 && Math.abs(player.velX) > 0.5) {
+                    ctx.fillStyle = '#ff0000';
+                    if (player.facingRight) {
+                        ctx.fillRect(player.x + 20, player.y + 32, 8, 4);
+                    } else {
+                        ctx.fillRect(player.x, player.y + 32, 8, 4);
+                    }
+                } else if (player.frame === 2 && Math.abs(player.velX) > 0.5) {
+                    ctx.fillStyle = '#ff0000';
+                    if (player.facingRight) {
+                        ctx.fillRect(player.x + 4, player.y + 32, 8, 4);
+                    } else {
+                        ctx.fillRect(player.x + 16, player.y + 32, 8, 4);
+                    }
+                }
+            }
+            
+            // Draw flag
+            ctx.fillStyle = '#00aa00';
+            ctx.beginPath();
+            ctx.moveTo(flagX + 18, 10 * TILE_SIZE);
+            ctx.lineTo(flagX + 50, 12 * TILE_SIZE);
+            ctx.lineTo(flagX + 18, 14 * TILE_SIZE);
+            ctx.fill();
+            
+            ctx.restore();
+            
+            // Game over overlay
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#fff';
+                ctx.font = '40px monospace';
+                ctx.textAlign = 'center';
+                if (win) {
+                    ctx.fillText('COURSE CLEAR!', canvas.width/2, canvas.height/2 - 20);
+                } else {
+                    ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 20);
+                }
+                ctx.font = '20px monospace';
+                ctx.fillText('Press SPACE to restart', canvas.width/2, canvas.height/2 + 20);
+                ctx.textAlign = 'left';
+            }
+        }
+
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            update();
+            draw();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        function init() {
+            canvas.width = 800;
+            canvas.height = 480;
+            parseLevel();
+            resetGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        init();
     </script>
 </body>
 </html>
